@@ -1,10 +1,9 @@
 from langchain.prompts.prompt import PromptTemplate
 from langchain_openai import OpenAI
+from third_parties.linkedin import scrape_linkedin_profile
 
 if __name__ == '__main__':
     print('Hello, World!')
-
-    information = "Elon Reeve Musk (/ˈiːlɒn/ EE-lon; born June 28, 1971) is a businessman and investor. He is the founder, chairman, CEO, and CTO of SpaceX; angel investor, CEO, product architect, and former chairman of Tesla, Inc.; owner, executive chairman, and CTO of X Corp.; founder of the Boring Company and xAI; co-founder of Neuralink and OpenAI; and president of the Musk Foundation. He is one of the wealthiest people in the world; as of April 2024, Forbes estimates his net worth to be $178 billion."
 
     summary_template = """
     Given the information: {information}
@@ -19,6 +18,10 @@ if __name__ == '__main__':
     promptTemplate = PromptTemplate.from_template(summary_template)
 
     chain = promptTemplate.pipe(model)
+    linkedin_data = scrape_linkedin_profile(
+        linkedin_profile_url="https://www.linkedin.com/in/eden-marco/",
+        mock=True,
+    )
 
-    result = chain.invoke({"information": information})
+    result = chain.invoke({"information": linkedin_data})
     print(result)
