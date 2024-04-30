@@ -1,18 +1,24 @@
 from langchain.prompts.prompt import PromptTemplate
 from langchain_openai import OpenAI
 from third_parties.linkedin import scrape_linkedin_profile
-from agents.linkedin_lookup_agent import lookup
+from third_parties.twitter import scrape_user_tweet
+from agents.twitter_lookup_agent import lookup as twitter_lookup_agent
+from agents.linkedin_lookup_agent import lookup as linkedin_lookup_agent
 
 
 def ice_break_with(name:str) -> str:
-    linkedin_username = lookup(name=name)
+    linkedin_username = linkedin_lookup_agent(name=name)
+    twitter_username = twitter_lookup_agent(name=name)
+
+    
 
     summary_template = """
-        Given the information: {information}
+        Given the information from linkedin {information} 
+        and twitter {tweets} I want you to create:
 
         Please provide:
-        1. A short summary of the information.
-        2. Two interesting facts derived from the information.
+        1. A short summary
+        2. Two interesting facts from tweets
      """
 
     model = OpenAI()
@@ -24,7 +30,9 @@ def ice_break_with(name:str) -> str:
         linkedin_profile_url=linkedin_username
     )
 
-    result = chain.invoke({"information": linkedin_data})
+    tweets = scrape_user_tweet(username=twitter_username, mock=True)
+
+    result = chain.invoke({"information": linkedin_data, "tweets": tweets})
     print(result)
 
 if __name__ == '__main__':
